@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Joakim Reinert"]
   spec.email         = ["mail@jreinert.com"]
   spec.summary       = %q{A set of methods and scopes for publishing logic in mongoid models}
-  spec.description   = %q{TODO: Write a longer description. Optional.}
+  spec.description   = %q{Basically a rewrite of codegourmet/mm-publishing-logic for mongoid. For more information visit https://github.com/codegourmet/mm-publishing-logic.}
   spec.homepage      = "https://github.com/jreinert/mongoid-publishing_logic"
   spec.license       = "MIT"
 
