@@ -39,6 +39,16 @@ module Mongoid
           expect(model.publishing_date).to eq Date.today
         end
       end
+
+      it 'has a publishing end date' do
+        expect(model).to respond_to(:publishing_end_date)
+      end
+
+      describe 'publishing_end_date' do
+        it 'is nil by default' do
+          expect(model.publishing_end_date).to be nil
+        end
+      end
     end
   end
 end

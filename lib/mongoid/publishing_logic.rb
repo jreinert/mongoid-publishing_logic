@@ -13,6 +13,7 @@ module Mongoid
 
       field :published_flag, type: Boolean, default: false
       field :publishing_date, type: Date, default: lambda { Date.today }
+      field :publishing_end_date, type: Date
     end
   end
 end
