@@ -15,6 +15,25 @@ module Mongoid
       }
     end
 
+    def generate_records
+      records = []
+
+      [true, false].each do |published_flag|
+        Array.new(3) {|index| Date.today + (index - 1) }.each do |publishing_date|
+          [nil, *Array.new(3) {|index| Date.today + (index - 1)}].each do |publishing_end_date|
+            model = model_class.create!(
+              published_flag: published_flag,
+              publishing_date: publishing_date,
+              publishing_end_date: publishing_end_date
+            )
+            records << model
+          end
+        end
+      end
+
+      records
+    end
+
     it 'has a published scope' do
       expect(model_class).to respond_to(:published)
     end
@@ -56,24 +75,12 @@ module Mongoid
          "publishing_date in the past or today and\n\t" +
          "publishing_end_date nil or greater than today" do
 
-        expected_records = []
-        [true, false].each do |published_flag|
-          Array.new(3) {|index| Date.today + (index - 1) }.each do |publishing_date|
-            [nil, *Array.new(3) {|index| Date.today + (index - 1)}].each do |publishing_end_date|
-              model = model_class.create!(
-                published_flag: published_flag,
-                publishing_date: publishing_date,
-                publishing_end_date: publishing_end_date
-              )
-              if published_flag &&
-                publishing_date <= Date.today &&
-                (publishing_end_date.nil? || publishing_end_date > Date.today)
-
-                expected_records << model
-              end
-            end
-          end
-        end
+        records = generate_records
+        expected_records = records.select {|record|
+          record.published_flag &&
+            record.publishing_date <= Date.today &&
+            (record.publishing_end_date.nil? || record.publishing_end_date > Date.today)
+        }
 
         expect(model_class.published).to match_array expected_records
       end
@@ -88,24 +95,12 @@ module Mongoid
          "or publishing_date in the future\n\t" +
          "or publishing_end_date today or in the past" do
 
-        expected_records = []
-        [true, false].each do |published_flag|
-          Array.new(3) {|index| Date.today + (index - 1) }.each do |publishing_date|
-            [nil, *Array.new(3) {|index| Date.today + (index - 1)}].each do |publishing_end_date|
-              model = model_class.create!(
-                published_flag: published_flag,
-                publishing_date: publishing_date,
-                publishing_end_date: publishing_end_date
-              )
-              if !published_flag ||
-                publishing_date > Date.today ||
-                (!publishing_end_date.nil? && publishing_end_date <= Date.today)
-
-                expected_records << model
-              end
-            end
-          end
-        end
+        records = generate_records
+        expected_records = records.select {|record|
+          !record.published_flag ||
+            record.publishing_date > Date.today ||
+            (!record.publishing_end_date.nil? && record.publishing_end_date <= Date.today)
+        }
 
         expect(model_class.unpublished).to match_array expected_records
       end
