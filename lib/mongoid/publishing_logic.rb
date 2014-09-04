@@ -23,6 +23,14 @@ module Mongoid
             {:publishing_end_date.gt => Date.today}
           )
       }
+
+      scope :unpublished, lambda {
+        self.or(
+          {published_flag: false},
+          {:publishing_date.gt => Date.today},
+          {:publishing_end_date.lte => Date.today}
+        )
+      }
     end
   end
 end

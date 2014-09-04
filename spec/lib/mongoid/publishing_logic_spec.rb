@@ -79,6 +79,38 @@ module Mongoid
       end
     end
 
+    it 'has an unpublished scope' do
+      expect(model_class).to respond_to(:unpublished)
+    end
+
+    describe 'unpublished scope' do
+      it "returns all records, with published_flag set to false\n\t" +
+         "or publishing_date in the future\n\t" +
+         "or publishing_end_date today or in the past" do
+
+        expected_records = []
+        [true, false].each do |published_flag|
+          Array.new(3) {|index| Date.today + (index - 1) }.each do |publishing_date|
+            [nil, *Array.new(3) {|index| Date.today + (index - 1)}].each do |publishing_end_date|
+              model = model_class.create!(
+                published_flag: published_flag,
+                publishing_date: publishing_date,
+                publishing_end_date: publishing_end_date
+              )
+              if !published_flag ||
+                publishing_date > Date.today ||
+                (!publishing_end_date.nil? && publishing_end_date <= Date.today)
+
+                expected_records << model
+              end
+            end
+          end
+        end
+
+        expect(model_class.unpublished).to match_array expected_records
+      end
+    end
+
     describe 'instance' do
       let :model do
         model_class.new
