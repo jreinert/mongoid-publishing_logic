@@ -258,6 +258,20 @@ module Mongoid
           expect(model.publishing_end_date).to be nil
         end
       end
+
+      describe 'published?' do
+        it "returns true if the published_flag is set to true,\n\t" +
+           "publishing_date is today or in the past and\n\t" +
+           "publishing_end_date is in the future" do
+          records = generate_records
+          expected_records = records.select {|record|
+            record.published_flag &&
+            record.publishing_date <= Date.today &&
+            (record.publishing_end_date.nil? || record.publishing_end_date > Date.today)
+          }
+          expect(records.select(&:published?)).to match_array expected_records
+        end
+      end
     end
   end
 end
