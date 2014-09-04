@@ -271,6 +271,13 @@ module Mongoid
           }
           expect(records.select(&:published?)).to match_array expected_records
         end
+
+        it 'always returns true if the global active attribute is set to false' do
+          PublishingLogic.active = false
+          records = generate_records
+
+          expect(records.select(&:published?)).to match_array records
+        end
       end
     end
   end
