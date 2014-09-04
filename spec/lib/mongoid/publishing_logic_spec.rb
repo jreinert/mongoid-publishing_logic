@@ -3,6 +3,22 @@ require 'mongoid/publishing_logic'
 module Mongoid
   describe PublishingLogic do
 
+    before :each do
+      PublishingLogic.active = true
+    end
+
+    it 'has an writer for the attribute active' do
+      expect(PublishingLogic).to respond_to(:active=)
+    end
+
+    it 'has an active? method which returns the current state of the active attribute' do
+      expect(PublishingLogic).to respond_to(:active?)
+      PublishingLogic.active = false
+      expect(PublishingLogic.active?).to be false
+      PublishingLogic.active = true
+      expect(PublishingLogic.active?).to be true
+    end
+
     it 'raises if included in a non-mongoid model/class' do
       expect {Class.new { include Mongoid::PublishingLogic }}.to raise_error(RuntimeError)
     end
@@ -84,6 +100,13 @@ module Mongoid
 
         expect(model_class.published).to match_array expected_records
       end
+
+      it "returns all records if the global active flag is set to false" do
+        PublishingLogic::active = false
+        records = generate_records
+
+        expect(model_class.published).to match_array records
+      end
     end
 
     it 'has an unpublished scope' do
@@ -103,6 +126,13 @@ module Mongoid
         }
 
         expect(model_class.unpublished).to match_array expected_records
+      end
+
+      it "returns an empty query object if the global active flag is set to false" do
+        PublishingLogic::active = false
+        generate_records
+
+        expect(model_class.unpublished).to match_array []
       end
     end
 
