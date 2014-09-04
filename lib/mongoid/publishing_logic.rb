@@ -10,6 +10,8 @@ module Mongoid
       unless self.include? Mongoid::Document
         raise RuntimeError.new('must be included in a Mongoid model')
       end
+
+      field :published_flag, type: Boolean, default: false
     end
   end
 end
