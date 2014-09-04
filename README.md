@@ -89,7 +89,7 @@ attribute.
 
 ## Contributing
 
-1. Fork it ( https://github.com/[my-github-username]/mongoid-publishing_logic/fork )
+1. Fork it ( https://github.com/jreinert/mongoid-publishing_logic/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Write and run tests, make sure everything passes
