@@ -29,6 +29,16 @@ module Mongoid
           expect(model.published_flag).to eq false
         end
       end
+
+      it 'has a publishing date' do
+        expect(model).to respond_to(:publishing_date)
+      end
+
+      describe 'publishing_date' do
+        it "is today's date by default" do
+          expect(model.publishing_date).to eq Date.today
+        end
+      end
     end
   end
 end
