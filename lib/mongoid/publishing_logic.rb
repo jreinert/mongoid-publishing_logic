@@ -14,6 +14,15 @@ module Mongoid
       field :published_flag, type: Boolean, default: false
       field :publishing_date, type: Date, default: lambda { Date.today }
       field :publishing_end_date, type: Date
+
+      scope :published, lambda {
+        where(published_flag: true,
+              :publishing_date.lte => Date.today)
+          .or(
+            {publishing_end_date: nil},
+            {:publishing_end_date.gt => Date.today}
+          )
+      }
     end
   end
 end
