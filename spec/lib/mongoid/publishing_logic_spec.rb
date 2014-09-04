@@ -7,17 +7,105 @@ module Mongoid
       PublishingLogic.active = true
     end
 
-    it 'has an writer for the attribute active' do
+    it 'has a writer for the attribute active' do
       expect(PublishingLogic).to respond_to(:active=)
     end
+
 
     it 'has an active? method which returns the current state of the active attribute' do
       expect(PublishingLogic).to respond_to(:active?)
       PublishingLogic.active = false
+      expect(PublishingLogic.class_variable_get(:@@active)).to be false
       expect(PublishingLogic.active?).to be false
       PublishingLogic.active = true
+      expect(PublishingLogic.class_variable_get(:@@active)).to be true
       expect(PublishingLogic.active?).to be true
     end
+
+    it 'has activate and deactivate methods to set active attribute' do
+      expect(PublishingLogic).to respond_to(:activate)
+      expect(PublishingLogic).to respond_to(:deactivate)
+
+      expect(PublishingLogic.class_variable_get(:@@active)).to eq true
+      PublishingLogic.deactivate
+      expect(PublishingLogic.class_variable_get(:@@active)).to eq false
+      PublishingLogic.activate
+      expect(PublishingLogic.class_variable_get(:@@active)).to eq true
+    end
+
+    describe '.with_status' do
+      it 'expects a value to set the active attribute to' do
+        expect { PublishingLogic.with_status }.to raise_error(ArgumentError)
+      end
+
+      it 'expects a block' do
+        expect { PublishingLogic.with_status(true) }.to raise_error(LocalJumpError)
+      end
+
+      it 'sets the publishing logic active attribute to whatever value is passed to it in the codeblock' do
+        [true, false].each do |initial_status|
+          PublishingLogic.active = initial_status
+
+          [true, false].each do |status|
+            PublishingLogic.with_status(status) do
+              expect(PublishingLogic.class_variable_get(:@@active)).to be status
+            end
+          end
+        end
+      end
+
+      it 'sets the publishing logic active attribute to its previous value outside the codeblock' do
+        [true, false].each do |initial_status|
+          PublishingLogic.active = initial_status
+
+          [true, false].each do |status|
+            PublishingLogic.with_status(status) {}
+          end
+          expect(PublishingLogic.class_variable_get(:@@active)).to be initial_status
+
+          begin
+            PublishingLogic.with_status(status) { raise Class.new(StandardError).new }
+          rescue
+            expect(PublishingLogic.class_variable_get(:@@active)).to eq initial_status
+          end
+        end
+      end
+    end
+
+    {deactivated: false, activated: true}.each do |method, expected_value|
+      describe ".#{method}" do
+        it 'expects a block' do
+          expect { PublishingLogic.send(method) }.to raise_error(LocalJumpError)
+        end
+
+        it "turns #{expected_value ? 'on' : 'off'} publishing logic for the codeblock" do
+          [true, false].each do |initial_status|
+            PublishingLogic.active = initial_status
+
+            PublishingLogic.send(method) do
+              expect(PublishingLogic.class_variable_get(:@@active)).to eq expected_value
+            end
+          end
+        end
+
+        it 'sets the active attribute to what it was before the codeblock' do
+          [true, false].each do |initial_status|
+            PublishingLogic.active = initial_status
+
+            PublishingLogic.send(method) {}
+
+            expect(PublishingLogic.class_variable_get(:@@active)).to eq initial_status
+
+            begin
+              PublishingLogic.deactivated { raise Class.new(StandardError).new }
+            rescue
+              expect(PublishingLogic.class_variable_get(:@@active)).to eq initial_status
+            end
+          end
+        end
+      end
+    end
+
 
     it 'raises if included in a non-mongoid model/class' do
       expect {Class.new { include Mongoid::PublishingLogic }}.to raise_error(RuntimeError)

@@ -6,12 +6,8 @@ module Mongoid
   module PublishingLogic
     extend ::ActiveSupport::Concern
 
-    mattr_writer :active
+    mattr_accessor :active
     self.active = true
-
-    def self.active?
-      @@active
-    end
 
     included do
       unless self.include? Mongoid::Document
@@ -47,5 +43,39 @@ module Mongoid
         end
       }
     end
+
+    module ModuleMethods
+      def active?
+        self.active
+      end
+
+      def activate
+        self.active = true
+      end
+
+      def deactivate
+        self.active = false
+      end
+
+      def deactivated(&block)
+        with_status(false, &block)
+      end
+
+      def activated(&block)
+        with_status(true, &block)
+      end
+
+      def with_status(status, &block)
+        status_was = active?
+        begin
+          self.active = status
+          yield
+        ensure
+          self.active = status_was
+        end
+      end
+    end
+
+    extend self::ModuleMethods
   end
 end
