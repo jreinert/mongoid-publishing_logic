@@ -15,15 +15,20 @@ module Mongoid
           locale_was = I18n.locale
           begin
             I18n.locale = locale
-            where(published_flag: true)
-              .or(
-                {:publishing_date.exists => false},
-                {:publishing_date => nil},
-                {:publishing_date.lte => Date.today}
-              ).or(
-                {publishing_end_date: nil},
-                {:publishing_end_date.gt => Date.today}
-              )
+            where(
+              published_flag: true,
+              :$and => [
+                {:$or => [
+                  {:publishing_date.exists => false},
+                  {:publishing_date => nil},
+                  {:publishing_date.lte => Date.today}
+                ]},
+                {:$or => [
+                  {publishing_end_date: nil},
+                  {:publishing_end_date.gt => Date.today}
+                ]}
+              ]
+            )
           ensure
             I18n.locale = locale_was
           end
