@@ -20,9 +20,12 @@ module Mongoid
 
       scope :published, lambda {
         if PublishingLogic.active?
-          where(published_flag: true,
-                :publishing_date.lte => Date.today)
+          where(published_flag: true)
             .or(
+              {:publishing_date.exists => false},
+              {:publishing_date => nil},
+              {:publishing_date.lte => Date.today}
+            ).or(
               {publishing_end_date: nil},
               {:publishing_end_date.gt => Date.today}
             )
