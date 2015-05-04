@@ -6,8 +6,11 @@ module Mongoid
   module PublishingLogic
     extend ::ActiveSupport::Concern
 
-    mattr_accessor :active
-    self.active = true
+    class << self
+      attr_accessor :active
+    end
+
+    @active =  true
 
     included do
       unless self.include? Mongoid::Document
