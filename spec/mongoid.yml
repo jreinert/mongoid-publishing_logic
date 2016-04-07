@@ -1,6 +1,6 @@
 test:
-  sessions:
+  clients:
     default:
+      database: mongoid-publishing_logic_test
       hosts:
         - localhost:27017
-      database: mongoid-publishing_logic_test

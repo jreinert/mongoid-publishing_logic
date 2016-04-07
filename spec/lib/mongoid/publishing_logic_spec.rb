@@ -194,10 +194,8 @@ module Mongoid
     it 'has an active? method which returns the current state of the active attribute' do
       expect(PublishingLogic).to respond_to(:active?)
       PublishingLogic.active = false
-      expect(PublishingLogic.class_variable_get(:@@active)).to be false
       expect(PublishingLogic.active?).to be false
       PublishingLogic.active = true
-      expect(PublishingLogic.class_variable_get(:@@active)).to be true
       expect(PublishingLogic.active?).to be true
     end
 
@@ -205,11 +203,11 @@ module Mongoid
       expect(PublishingLogic).to respond_to(:activate)
       expect(PublishingLogic).to respond_to(:deactivate)
 
-      expect(PublishingLogic.class_variable_get(:@@active)).to eq true
+      expect(PublishingLogic.active?).to be true
       PublishingLogic.deactivate
-      expect(PublishingLogic.class_variable_get(:@@active)).to eq false
+      expect(PublishingLogic.active?).to eq false
       PublishingLogic.activate
-      expect(PublishingLogic.class_variable_get(:@@active)).to eq true
+      expect(PublishingLogic.active?).to eq true
     end
 
     describe '.with_status' do
@@ -227,7 +225,7 @@ module Mongoid
 
           [true, false].each do |status|
             PublishingLogic.with_status(status) do
-              expect(PublishingLogic.class_variable_get(:@@active)).to be status
+              expect(PublishingLogic.active?).to be status
             end
           end
         end
@@ -240,12 +238,12 @@ module Mongoid
           [true, false].each do |status|
             PublishingLogic.with_status(status) {}
           end
-          expect(PublishingLogic.class_variable_get(:@@active)).to be initial_status
+          expect(PublishingLogic.active?).to be initial_status
 
           begin
             PublishingLogic.with_status(status) { raise Class.new(StandardError).new }
           rescue
-            expect(PublishingLogic.class_variable_get(:@@active)).to eq initial_status
+            expect(PublishingLogic.active?).to eq initial_status
           end
         end
       end
@@ -262,7 +260,7 @@ module Mongoid
             PublishingLogic.active = initial_status
 
             PublishingLogic.send(method) do
-              expect(PublishingLogic.class_variable_get(:@@active)).to eq expected_value
+              expect(PublishingLogic.active?).to eq expected_value
             end
           end
         end
@@ -273,12 +271,12 @@ module Mongoid
 
             PublishingLogic.send(method) {}
 
-            expect(PublishingLogic.class_variable_get(:@@active)).to eq initial_status
+            expect(PublishingLogic.active?).to eq initial_status
 
             begin
               PublishingLogic.deactivated { raise Class.new(StandardError).new }
             rescue
-              expect(PublishingLogic.class_variable_get(:@@active)).to eq initial_status
+              expect(PublishingLogic.active?).to eq initial_status
             end
           end
         end
