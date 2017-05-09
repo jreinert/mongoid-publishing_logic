@@ -65,5 +65,17 @@ module Mongoid
         I18n.locale = locale_was
       end
     end
+
+    def published_flag
+      super || false
+    end
+
+    def publishing_date
+      super || publishing_date_translations[I18n.default_locale]
+    end
+
+    def publishing_end_date
+      super || publishing_end_date_translations[I18n.default_locale]
+    end
   end
 end
