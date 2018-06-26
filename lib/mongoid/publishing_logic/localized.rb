@@ -56,11 +56,11 @@ module Mongoid
       }
     end
 
-    def published?(locale=I18n.locale)
+    def published?(locale: I18n.locale, ignore_active_status: false)
       locale_was = I18n.locale
       begin
         I18n.locale = locale
-        super()
+        super(ignore_active_status: ignore_active_status)
       ensure
         I18n.locale = locale_was
       end
