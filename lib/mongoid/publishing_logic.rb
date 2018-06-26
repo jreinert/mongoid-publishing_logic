@@ -55,8 +55,8 @@ module Mongoid
       }
     end
 
-    def published?
-      if PublishingLogic.active?
+    def published?(ignore_active_status = false)
+      if ignore_active_status || PublishingLogic.active?
         published_flag && (
           (publishing_date.nil? || publishing_date <= Date.today) &&
           (publishing_end_date.nil? || publishing_end_date > Date.today)
